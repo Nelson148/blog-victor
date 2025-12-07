@@ -1,0 +1,109 @@
+"use client";
+
+import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
+import { Button } from "@heroui/react";
+import { Home, LayoutGrid, LogOut } from "lucide-react";
+import { UserAvatar } from "./UserAvatar";
+
+export function Navbar() {
+  const { data: session } = useSession();
+
+  return (
+    <nav className="fixed w-full z-40 top-0 border-b border-white/5 bg-black/50 backdrop-blur-xl">
+      <div className="container mx-auto px-6 h-16 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-700 to-indigo-900 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/50">
+              <span className="text-white font-bold">F1</span>
+            </div>
+            <span className="font-bold text-xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+              Blog
+            </span>
+          </Link>
+        </div>
+        
+        <nav className="flex items-center gap-2 md:gap-4">
+          <Button 
+            as={Link}
+            href="/"
+            variant="light" 
+            size="sm" 
+            className="text-gray-300 hover:text-white hover:bg-white/10 hidden md:flex rounded-xl border-0"
+          >
+            <Home className="h-4 w-4 " />
+            <span className="font-semibold ">Início</span>
+          </Button>
+
+          <Button 
+            as={Link}
+            href="/post"
+            variant="light" 
+            size="sm" 
+            className="text-gray-300 hover:text-white hover:bg-white/10 rounded-xl border-0"
+          >
+            <LayoutGrid className="h-4 w-4" />
+            <span className="font-semibold">Posts</span>
+          </Button>
+
+          {session ? (
+            <div className="flex items-center gap-4 border-l border-white/10 pl-4">
+              {session.user?.image ? (
+                <Link href="/perfil" title="Ir para o Perfil">
+                  <img 
+                    src={session.user.image} 
+                    alt="Avatar" 
+                    className="w-8 h-8 rounded-full border border-gray-600 object-cover hover:ring-2 ring-blue-500 transition-shadow" 
+                  />
+                </Link>
+              ) : (
+                <Link href="/perfil" title="Ir para o Perfil">
+                  <UserAvatar 
+                    name={session.user?.name || "U"} 
+                    image={session.user?.image}
+                    className="w-8 h-8"
+                  />
+                </Link>
+              )}
+
+              <span className="text-sm text-gray-400 hidden lg:block">
+                Olá, <span className="text-white font-medium">{session.user?.name}</span>
+              </span>
+              
+              <Button 
+                variant="light" 
+                size="sm" 
+                onPress={() => signOut()}
+                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors rounded-xl border-0"
+              >
+                <LogOut className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Sair</span>
+              </Button>
+            </div>
+          ) : (
+            <div className="hidden md:flex gap-2">
+              <Button 
+                as={Link}
+                href="/login"
+                variant="light" 
+                size="sm" 
+                className="text-gray-300 hover:text-white hover:bg-white/10 rounded-xl border-0"
+              >
+                Login
+              </Button>
+              <Button 
+                as={Link}
+                href="/registrar"
+                size="sm" 
+                className="bg-gradient-to-r from-blue-700 to-indigo-600 text-white hover:shadow-blue-500/20 rounded-xl border-0"
+              >
+                Registrar
+              </Button>
+            </div>
+          )}
+        </nav>
+      </div>
+    </nav>
+  );
+}
+

@@ -3,22 +3,20 @@
 import { useState, useEffect, FormEvent, ChangeEvent, MouseEvent } from 'react';
 import Link from "next/link";
 import { 
-  Trash2, 
   Plus, 
   ImageIcon, 
   X, 
   Sparkles, 
-  Home,        
-  LayoutGrid,  
-  LogOut,      
   Calendar,    
-  User,
   MessageCircle, 
   Send           
 } from 'lucide-react'; 
 import { addPost, listPosts, deletePost, addComment } from '@/app/actions'; 
-import { useSession, signOut } from 'next-auth/react'; 
-import { Button } from "@/components/ui/button"; 
+import { useSession } from 'next-auth/react'; 
+import { Button } from "@heroui/react";
+import { Navbar } from "@/components/Navbar";
+import { PostCard } from "@/components/PostCard";
+import { UserAvatar } from "@/components/UserAvatar"; 
 
 // --- Tipos Ajustados (Aceitam string, null ou undefined) ---
 interface Comment {
@@ -41,23 +39,6 @@ interface Post {
   comments?: Comment[]; 
 }
 
-// --- Componente Auxiliar: Avatar do Usuário ---
-const UserAvatar = ({ name, image, className = "w-8 h-8", fontSize = "text-xs" }: { name: string, image?: string | null, className?: string, fontSize?: string }) => {
-  if (image) {
-    return (
-      <img 
-        src={image} 
-        alt={name} 
-        className={`${className} rounded-full object-cover border border-gray-700`} 
-      />
-    );
-  }
-  return (
-    <div className={`${className} rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white ${fontSize} font-bold flex-shrink-0 border border-gray-700`}>
-      {name.charAt(0).toUpperCase()}
-    </div>
-  );
-};
 
 // --- Componente: Modal de Visualização do Post com Comentários ---
 const ViewPostModal = ({ 
@@ -322,90 +303,18 @@ const CreatePostModal = ({
   );
 };
 
-// --- Componente: Card do Post ---
-const PostCard = ({ 
-  post, 
-  onDelete, 
-  isAdmin, 
-  onClick 
-}: { 
-  post: Post, 
-  onDelete: (id: string) => void, 
-  isAdmin: boolean,
-  onClick: () => void 
-}) => {
-  const authorName = typeof post.author === 'string' ? post.author : (post.author?.name || 'Anônimo');
-  // Extrai a imagem do autor para o Card
-  const authorImage = typeof post.author === 'object' ? post.author?.image : null;
-  const dateStr = new Date(post.createdAt).toLocaleDateString('pt-BR');
-
-  const handleDeleteClick = async (e: MouseEvent) => {
-      e.stopPropagation(); 
-      if (confirm("Tem certeza que deseja excluir este post?")) {
-          const formData = new FormData();
-          formData.append("id", post._id);
-          try {
-            await deletePost(formData);
-            onDelete(post._id);
-          } catch (error) {
-            alert("Erro ao excluir");
-          }
-      }
-  };
-
-  return (
-    <article 
-      onClick={onClick} 
-      className="group relative flex flex-col overflow-hidden bg-gray-900 border border-gray-800 rounded-2xl hover:border-blue-500/30 hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-300 cursor-pointer"
-    >
-      
-      {isAdmin && (
-        <button 
-          onClick={handleDeleteClick}
-          className="absolute top-3 right-3 z-20 p-2 bg-black/60 backdrop-blur-sm text-red-400 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 transition-all"
-          title="Excluir Post"
-        >
-          <Trash2 size={16} />
-        </button>
-      )}
-
-      <div className="relative w-full h-52 overflow-hidden bg-gray-800">
-        <img 
-          src={post.imageUrl || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop"} 
-          alt={post.title} 
-          className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-80" />
-        <span className="absolute bottom-3 left-4 px-3 py-1 text-[10px] font-bold tracking-wider text-white uppercase bg-blue-700/90 backdrop-blur-md rounded-full border border-blue-500/50">
-          Comunidade
-        </span>
-      </div>
-
-      <div className="flex flex-col flex-1 p-6">
-        <h3 className="mb-3 text-xl font-bold text-white leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-indigo-400 transition-all">
-          {post.title}
-        </h3>
-        <p className="mb-6 text-sm text-gray-400 line-clamp-3 leading-relaxed">
-          {post.content}
-        </p>
-        
-        <div className="flex items-center justify-between pt-4 mt-auto border-t border-gray-800">
-          <div className="flex items-center gap-2">
-            <UserAvatar name={authorName} image={authorImage} />
-            <span className="text-xs font-medium text-gray-400">{authorName}</span>
-          </div>
-          
-          <div className="flex items-center gap-3">
-             <div className="flex items-center gap-1 text-gray-500">
-                <MessageCircle size={14} />
-                <span className="text-xs">{post.comments?.length || 0}</span>
-             </div>
-             <span className="text-xs text-gray-500">{dateStr}</span>
-          </div>
-        </div>
-      </div>
-    </article>
-  );
+// Função auxiliar para deletar post
+const handleDeletePost = async (id: string, onDelete: (id: string) => void) => {
+  if (confirm("Tem certeza que deseja excluir este post?")) {
+    const formData = new FormData();
+    formData.append("id", id);
+    try {
+      await deletePost(formData);
+      onDelete(id);
+    } catch (error) {
+      alert("Erro ao excluir");
+    }
+  }
 };
 
 // --- Página Principal (Feed) ---
@@ -457,75 +366,7 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-gray-100 font-sans selection:bg-blue-500/30">
-      
-      {/* --- NAVBAR --- */}
-      <nav className="fixed w-full z-40 top-0 border-b border-white/5 bg-black/50 backdrop-blur-xl">
-        <div className="container mx-auto px-6 h-16 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-700 to-indigo-900 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/50">
-                <span className="text-white font-bold">F1</span>
-                </div>
-                <span className="font-bold text-xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                Blog
-                </span>
-            </Link>
-          </div>
-          
-          <nav className="flex items-center gap-2 md:gap-4">
-            <Button variant="ghost" size="sm" asChild className="text-gray-300 hover:text-white hover:bg-white/10 hidden md:flex">
-              <Link href="/" className="flex items-center gap-2 font-semibold">
-                <Home className="h-4 w-4" />
-                Início
-              </Link>
-            </Button>
-            <Button variant="ghost" size="sm" asChild className="text-gray-300 hover:text-white hover:bg-white/10">
-              <Link href="/post" className="flex items-center gap-2 font-semibold">
-                <LayoutGrid className="h-4 w-4" />
-                Posts
-              </Link>
-            </Button>
-
-            {session ? (
-              <div className="flex items-center gap-4 border-l border-white/10 pl-4">
-                
-                {/* --- FOTO NA NAVBAR --- */}
-                <Link href="/perfil" className="flex items-center gap-2 group cursor-pointer">
-                    <div className="relative">
-                        <UserAvatar 
-                            name={session.user?.name || "U"} 
-                            image={session.user?.image} 
-                            className="w-8 h-8 group-hover:ring-2 ring-blue-500 transition-all"
-                        />
-                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black"></div>
-                    </div>
-                    <span className="text-sm text-gray-400 hidden md:block group-hover:text-white transition-colors">
-                        {session.user?.name}
-                    </span>
-                </Link>
-                {/* ---------------------- */}
-
-                <Button 
-                  variant="ghost" size="sm" onClick={() => signOut()}
-                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
-                >
-                  <LogOut className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Sair</span>
-                </Button>
-              </div>
-            ) : (
-              <div className="hidden md:flex gap-2">
-                <Button variant="ghost" size="sm" asChild className="text-gray-300 hover:text-white hover:bg-white/10">
-                  <Link href="/login">Login</Link>
-                </Button>
-                <Button size="sm" asChild className="bg-gradient-to-r from-blue-700 to-indigo-600 text-white hover:shadow-blue-500/20 border-0">
-                  <Link href="/registrar">Registrar</Link>
-                </Button>
-              </div>
-            )}
-          </nav>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="h-16"></div>
 
@@ -533,8 +374,7 @@ export default function FeedPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-blue-600/10 blur-[100px] rounded-full -z-10 pointer-events-none" />
 
         <h2 className="text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-2">
-          Posts da 
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-400 to-cyan-400"> Comunidade</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-500 via-green-400 to-green-300">Posts da Comunidade</span>
         </h2>
         
         {isAdmin ? (
@@ -566,8 +406,9 @@ export default function FeedPage() {
                <PostCard 
                  key={post._id} 
                  post={post} 
-                 onDelete={handleDeleteFromList}
-                 isAdmin={isAdmin}
+                 onDelete={(id) => handleDeletePost(id, handleDeleteFromList)}
+                 showDelete={isAdmin}
+                 variant="compact"
                  onClick={() => openPost(post)} 
                />
              ))}

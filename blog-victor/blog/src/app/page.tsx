@@ -2,30 +2,22 @@
 
   import { useEffect, useState } from "react";
   import Link from "next/link";
-  import { useSession, signOut } from "next-auth/react";
-  import { Button } from "@/components/ui/button";
+  import { useSession } from "next-auth/react";
+  import { Button } from "@heroui/react";
   import { 
-    Card, 
-    CardContent, 
-    CardDescription, 
-    CardFooter, 
-    CardHeader, 
-    CardTitle 
-  } from "@/components/ui/card";
-  import { 
-    ShoppingBag, 
     Sparkles, 
     Loader2,
     User,
     MessageCircle,
     LayoutGrid,
-    LogOut,
     ArrowRight,
-    Home,
-    Calendar
   } from "lucide-react";
 
-  import { listPosts, getSiteStats } from "@/app/actions"; 
+  import { listPosts, getSiteStats } from "@/app/actions";
+  import { Navbar } from "@/components/Navbar";
+  import { Footer } from "@/components/Footer";
+  import { PostCard } from "@/components/PostCard";
+  import { StatsCard } from "@/components/StatsCard"; 
 
   interface Post {
     _id: string;
@@ -85,83 +77,7 @@
 
     return (
       <div className="min-h-screen bg-[#0a0a0a] text-gray-100 font-sans selection:bg-blue-500/30">
-        
-        {/* Navbar */}
-        <nav className="fixed w-full z-40 top-0 border-b border-white/5 bg-black/50 backdrop-blur-xl">
-          <div className="container mx-auto px-6 h-16 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-700 to-indigo-900 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/50">
-                  <span className="text-white font-bold">F2</span>
-                  </div>
-                  <span className="font-bold text-xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                  Blog
-                  </span>
-              </Link>
-            </div>
-            
-            <nav className="flex items-center gap-2 md:gap-4">
-              <Button variant="ghost" size="sm" asChild className="text-gray-300 hover:text-white hover:bg-white/10 hidden md:flex">
-                <Link href="/" className="flex items-center gap-2 font-semibold">
-                  <Home className="h-4 w-4" />
-                  Início
-                </Link>
-              </Button>
-
-              <Button variant="ghost" size="sm" asChild className="text-gray-300 hover:text-white hover:bg-white/10">
-                <Link href="/post" className="flex items-center gap-2 font-semibold">
-                  <LayoutGrid className="h-4 w-4" />
-                  Posts
-                </Link>
-              </Button>
-
-              {session ? (
-                <div className="flex items-center gap-4 border-l border-white/10 pl-4">
-                  {/* Avatar na Navbar (Opcional - Adicionado para completar o visual) */}
-                  {session.user?.image ? (
-                      <Link href="/perfil" title="Ir para o Perfil">
-                          <img 
-                              src={session.user.image} 
-                              alt="Avatar" 
-                              className="w-8 h-8 rounded-full border border-gray-600 object-cover hover:ring-2 ring-blue-500 transition-shadow" 
-                          />
-                      </Link>
-                  ) : (
-                      <Link href="/perfil" title="Ir para o Perfil">
-                          <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white border border-gray-600">
-                              {session.user?.name?.charAt(0).toUpperCase() || 'U'}
-                          </div>
-                      </Link>
-                  )}
-
-
-                  <span className="text-sm text-gray-400 hidden lg:block">
-                    Olá, <span className="text-white font-medium">{session.user?.name}</span>
-                  </span>
-                  
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => signOut()}
-                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
-                  >
-                    <LogOut className="h-4 w-4 md:mr-2" />
-                    <span className="hidden md:inline">Sair</span>
-                  </Button>
-                </div>
-              ) : (
-                <div className="hidden md:flex gap-2">
-                  <Button variant="ghost" size="sm" asChild className="text-gray-300 hover:text-white hover:bg-white/10">
-                    <Link href="/login">Login</Link>
-                  </Button>
-                  <Button size="sm" asChild className="bg-gradient-to-r from-blue-700 to-indigo-600 text-white hover:shadow-blue-500/20 border-0">
-                    <Link href="/registrar">Registrar</Link>
-                  </Button>
-                </div>
-              )}
-            </nav>
-          </div>
-        </nav>
+        <Navbar />
 
           {/* Hero Section */}
           <section className="relative overflow-hidden pt-32 pb-20 px-4">
@@ -200,16 +116,25 @@
               </p>
               
               <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-                <Button size="lg" asChild className="h-12 px-8 bg-white text-black font-bold rounded-full hover:scale-105 hover:shadow-[0_0_30px_-10px_rgba(37,99,235,0.4)] transition-all">
-                  <Link href="/post" className="flex items-center gap-2">
-                    Ver todos os posts recentes
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
+                <Button 
+                  as={Link}
+                  href="/post"
+                  size="lg" 
+                  className="h-12 px-8 bg-white text-black font-bold rounded-full hover:scale-105 hover:shadow-[0_0_30px_-10px_rgba(37,99,235,0.4)] transition-all"
+                  endContent={<ArrowRight className="h-4 w-4" />}
+                >
+                  Ver todos os posts recentes
                 </Button>
                 
                 {!session && (
-                    <Button size="lg" variant="outline" asChild className="h-12 px-8 rounded-full border-gray-700 text-gray-300 hover:bg-white/5 hover:text-white hover:border-gray-500 bg-transparent">
-                      <Link href="/registrar">Criar Conta</Link>
+                    <Button 
+                      as={Link}
+                      href="/registrar"
+                      size="lg" 
+                      variant="bordered" 
+                      className="h-12 px-8 rounded-full border-gray-700 text-gray-300 hover:bg-white/5 hover:text-white hover:border-gray-500 bg-transparent"
+                    >
+                      Criar Conta
                     </Button>
                 )}
               </div>
@@ -221,47 +146,30 @@
         <section className="py-12 px-4 border-y border-white/5 bg-black/20">
           <div className="container mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
-                  <CardContent className="pt-6 flex justify-between items-center">
-                      <div>
-                          <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Posts</p>
-                          <p className="text-3xl font-bold text-white mt-1">
-                            {loading ? <Loader2 className="animate-spin h-6 w-6"/> : stats.totalPosts}
-                          </p>
-                      </div>
-                      <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400">
-                          <LayoutGrid className="h-6 w-6" />
-                      </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
-                  <CardContent className="pt-6 flex justify-between items-center">
-                      <div>
-                          <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Usuários</p>
-                          <p className="text-3xl font-bold text-white mt-1">
-                            {loading ? <Loader2 className="animate-spin h-6 w-6"/> : stats.totalUsers}
-                          </p>
-                      </div>
-                      <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400">
-                          <User className="h-6 w-6" />
-                      </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
-                  <CardContent className="pt-6 flex justify-between items-center">
-                      <div>
-                          <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Comentários</p>
-                          <p className="text-3xl font-bold text-white mt-1">
-                            {loading ? <Loader2 className="animate-spin h-6 w-6"/> : stats.totalComments}
-                          </p>
-                      </div>
-                      <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-400">
-                          <MessageCircle className="h-6 w-6" />
-                      </div>
-                  </CardContent>
-                </Card>
+              <StatsCard
+                title="Total Posts"
+                value={stats.totalPosts}
+                icon={<LayoutGrid className="h-6 w-6" />}
+                loading={loading}
+                iconBgColor="bg-blue-500/10"
+                iconTextColor="text-blue-400"
+              />
+              <StatsCard
+                title="Usuários"
+                value={stats.totalUsers}
+                icon={<User className="h-6 w-6" />}
+                loading={loading}
+                iconBgColor="bg-indigo-500/10"
+                iconTextColor="text-indigo-400"
+              />
+              <StatsCard
+                title="Comentários"
+                value={stats.totalComments}
+                icon={<MessageCircle className="h-6 w-6" />}
+                loading={loading}
+                iconBgColor="bg-cyan-500/10"
+                iconTextColor="text-cyan-400"
+              />
             </div>
           </div>
         </section>
@@ -279,10 +187,14 @@
                 </p>
               </div>
               
-              <Button variant="ghost" asChild className="hidden md:flex text-blue-400 hover:text-blue-300 hover:bg-blue-900/20">
-                  <Link href="/post" className="flex items-center gap-2">
-                      Ver todos os posts <ArrowRight className="h-4 w-4" />
-                  </Link>
+              <Button 
+                as={Link}
+                href="/post"
+                variant="light" 
+                className="hidden md:flex text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                endContent={<ArrowRight className="h-4 w-4" />}
+              >
+                Ver todos os posts
               </Button>
             </div>
 
@@ -293,43 +205,11 @@
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {posts.map((post) => (
-                  <Card key={post._id} className="group overflow-hidden bg-gray-900 border-gray-800 hover:border-blue-500/30 hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-300 flex flex-col">
-                    
-                    {/* --- IMAGEM --- */}
-                    <div className="relative w-full h-48 overflow-hidden bg-gray-800">
-                      <img 
-                        src={post.imageUrl || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop"} 
-                        alt={post.title} 
-                        className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-80" />
-                    </div>
-                    {/* ----------------- */}
-
-                    <CardHeader>
-                      <CardTitle className="line-clamp-2 text-xl text-white group-hover:text-blue-400 transition-colors">
-                          {post.title}
-                      </CardTitle>
-                      <CardDescription className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                        <User className="h-3 w-3" />
-                        
-                        {/* --- CORREÇÃO DO ERRO Cannot read properties of null (reading 'name') --- */}
-                        <span>{(post.author as any)?.name ?? 'Autor Desconhecido'}</span> 
-                        
-                        <span>•</span>
-                        <Calendar className="h-3 w-3" />
-                        <span>{new Date(post.createdAt).toLocaleDateString("pt-BR")}</span>
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-400 text-sm line-clamp-3 leading-relaxed">{post.content}</p>
-                    </CardContent>
-                    <CardFooter className="mt-auto">
-                        <Button variant="link" size="sm" className="p-0 text-blue-400 hover:text-blue-300 group-hover:translate-x-1 transition-transform" asChild>
-                            <Link href={`/post`}>Ler mais <ArrowRight className="h-3 w-3 ml-1" /></Link>
-                        </Button>
-                    </CardFooter>
-                  </Card>
+                  <PostCard 
+                    key={post._id} 
+                    post={post}
+                    variant="default"
+                  />
                 ))}
               </div>
             )}
@@ -342,22 +222,20 @@
             )}
 
             <div className="mt-12 text-center md:hidden">
-              <Button size="lg" className="w-full bg-gradient-to-r from-blue-700 to-indigo-600 text-white font-bold" asChild>
-                  <Link href="/post">Ver todos os posts</Link>
+              <Button 
+                as={Link}
+                href="/post"
+                size="lg" 
+                className="w-full bg-gradient-to-r from-blue-700 to-indigo-600 text-white font-bold"
+              >
+                Ver todos os posts
               </Button>
             </div>
 
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="bg-black border-t border-white/5 py-10 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4 opacity-50">
-              <ShoppingBag className="h-5 w-5 text-gray-400" />
-              <span className="font-bold text-gray-300">F1 BLOG</span>
-          </div>
-          <p className="text-gray-600 text-sm">© 2024 F1 BLOG. Todos os direitos reservados.</p>
-        </footer>
+        <Footer />
       </div>
     );
   }

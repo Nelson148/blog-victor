@@ -16,7 +16,7 @@ import {
 
 import { updateUserProfile } from '@/app/actions';
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@heroui/react";
 
 
 
@@ -62,13 +62,18 @@ export default function ProfilePage() {
 
     const formData = new FormData(form);
 
-
+    // Garante que o arquivo de imagem seja incluído no FormData se foi selecionado
+    const imageInput = form.querySelector('input[type="file"]') as HTMLInputElement;
+    if (imageInput && imageInput.files && imageInput.files[0]) {
+      // Se já não estiver no FormData, adiciona manualmente
+      if (!formData.has("image")) {
+        formData.append("image", imageInput.files[0]);
+      }
+    }
 
     try {
 
       const result = await updateUserProfile(formData);
-
-
 
       if (result?.error) {
 
@@ -81,14 +86,17 @@ export default function ProfilePage() {
        
 
         // 1. Atualiza a sessão interna do NextAuth
+        // Se a imagem foi atualizada, passa a nova imagem Base64
+        // Caso contrário, passa null para manter a imagem atual da sessão
+        if (session) {
+          await update({
 
-        await update({
+              name: formData.get("name") as string,
 
-            name: formData.get("name"),
+              image: result.newImage || session.user?.image || null
 
-            image: result.newImage // Passa a nova imagem para o lib/auth.ts
-
-        });
+          });
+        }
 
        
 
@@ -104,6 +112,7 @@ export default function ProfilePage() {
 
     } catch (error) {
 
+      console.error("Erro ao atualizar perfil:", error);
       setMessage({ type: 'error', text: "Erro inesperado ao atualizar." });
 
     } finally {
@@ -172,15 +181,15 @@ export default function ProfilePage() {
 
           <nav className="flex items-center gap-2 md:gap-4">
 
-            <Button variant="ghost" size="sm" asChild className="text-gray-300 hover:text-white hover:bg-white/10 hidden md:flex">
+            <Button variant="ghost" size="sm" as={Link} href="/" className="text-gray-300 hover:text-white hover:bg-white/10 hidden md:flex">
 
-              <Link href="/"><Home className="h-4 w-4 mr-2" /> Início</Link>
+              <Home className="h-4 w-4 mr-2" /> Início
 
             </Button>
 
-            <Button variant="ghost" size="sm" asChild className="text-gray-300 hover:text-white hover:bg-white/10">
+            <Button variant="ghost" size="sm" as={Link} href="/post" className="text-gray-300 hover:text-white hover:bg-white/10">
 
-              <Link href="/post"><LayoutGrid className="h-4 w-4 mr-2" /> Posts</Link>
+              <LayoutGrid className="h-4 w-4 mr-2" /> Posts
 
             </Button>
 

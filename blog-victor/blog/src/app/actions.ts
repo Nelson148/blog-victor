@@ -291,12 +291,19 @@ export async function updateUserProfile(formData: FormData) {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const imageFile = formData.get("image") as File;
+  const imageFile = formData.get("image") as File | null;
   const userId = (session.user as any).id;
 
   // Objeto que será enviado ao Mongo
   const updateData: any = {};
   let imageUpdated = false; // Flag para saber se a imagem foi alterada
+
+  // Debug: Verifica se o arquivo foi recebido
+  console.log("LOG IMAGE DEBUG: imageFile recebido:", imageFile ? {
+    name: imageFile.name,
+    size: imageFile.size,
+    type: imageFile.type
+  } : "Nenhum arquivo recebido");
 
   // 1. Validação do Nome
   if (name && name.trim().length > 0) {
@@ -304,7 +311,8 @@ export async function updateUserProfile(formData: FormData) {
   }
 
   // 2. Processamento da Imagem (Base64)
-  if (imageFile && imageFile.size > 0) {
+  // Verifica se é um File object válido e se tem tamanho maior que 0
+  if (imageFile instanceof File && imageFile.size > 0) {
     
     // Limite de 2MB para não estourar o banco (ajustável)
     if (imageFile.size > 2 * 1024 * 1024) {
@@ -364,9 +372,13 @@ export async function updateUserProfile(formData: FormData) {
       revalidatePath("/perfil");
       revalidatePath("/post");
       
-      // MODIFICADO: Retorna uma flag simples se a imagem foi alterada
-      // Isso impede que a string Base64 volte para o cookie de sessão!
-      return { success: true, imageUpdated: imageUpdated }; 
+      // Retorna a nova imagem Base64 se foi atualizada, ou null
+      // Isso permite que o frontend atualize a sessão com a nova imagem
+      return { 
+        success: true, 
+        imageUpdated: imageUpdated,
+        newImage: imageUpdated ? updatedUser.image : null
+      }; 
   } catch (error) {
       console.error("Erro crítico no banco (updateUserProfile):", error);
       return { error: "Falha ao salvar no banco de dados." };

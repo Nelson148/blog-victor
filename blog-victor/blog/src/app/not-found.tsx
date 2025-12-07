@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { Button } from "@heroui/react";
 import { Home, ArrowLeft, SearchX, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Navbar } from "@/components/Navbar";
 import { ParticlesBackground } from "@/components/ParticlesBackground";
 
 export default function NotFound() {
@@ -18,10 +17,9 @@ export default function NotFound() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-gray-100 font-sans relative overflow-hidden">
-      <Navbar />
       <ParticlesBackground />
       
-      <div className="flex items-center justify-center px-4 pt-24 pb-12 min-h-screen relative z-10">
+      <div className="flex items-center justify-center px-4 pt-12 pb-12 min-h-screen relative z-10">
         {/* Efeitos de fundo sutis */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-green-600/5 blur-[120px] rounded-full animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-green-500/5 blur-[120px] rounded-full animate-pulse" />
@@ -34,11 +32,12 @@ export default function NotFound() {
             <div className="relative w-full aspect-[4/3] flex items-center justify-center">
               {!imageError ? (
                 <Image
-                  src="/404-error.png"
+                  src="https://i.postimg.cc/QtGr1qYD/Gemini-Generated-Image-we1vd9we1vd9we1v.png"
                   alt="Error 404 - Ops nada aqui!"
                   fill
                   className="object-contain drop-shadow-2xl"
                   priority
+                  unoptimized
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
                   onError={() => {
                     // Ativa o fallback se a imagem não carregar
@@ -78,23 +77,22 @@ export default function NotFound() {
         {/* Botões de ação com animação */}
         <div className={`flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 transition-all duration-1000 delay-500 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
           <Button 
+            as={Link}
+            href="/"
             size="lg" 
-            asChild
-            className="h-12 px-8 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white hover:shadow-green-500/30 hover:scale-105 transition-all border-0 font-semibold"
+            className="h-12 px-8 bg-gradient-to-r from-green-600 to-green-700 text-white hover:shadow-green-500/30 hover:scale-105 transition-all font-semibold"
+            startContent={<Home className="h-4 w-4" />}
           >
-            <Link href="/" className="flex items-center gap-2">
-              <Home className="h-4 w-4" />
-              Voltar para Home
-            </Link>
+            Voltar para Home
           </Button>
           
           <Button 
             size="lg" 
-            variant="outline" 
+            variant="bordered"
+            onPress={() => window.history.back()}
             className="h-12 px-8 border-gray-700 text-gray-300 hover:bg-white/5 hover:text-white hover:border-gray-500 hover:scale-105 transition-all bg-transparent font-semibold"
-            onClick={() => window.history.back()}
+            startContent={<ArrowLeft className="h-4 w-4" />}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Button>
         </div>
