@@ -32,7 +32,7 @@ export default function ProfilePage() {
   const [dbImage, setDbImage] = useState<string | null>(null);
   const [userImageNav, setUserImageNav] = useState<string | null | undefined>(session?.user?.image);
 
-
+  
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
 
