@@ -30,6 +30,7 @@ export default function ProfilePage() {
 
   const [preview, setPreview] = useState<string | null>(null);
   const [dbImage, setDbImage] = useState<string | null>(null);
+  const [userImageNav, setUserImageNav] = useState<string | null | undefined>(session?.user?.image);
 
 
 
@@ -63,6 +64,25 @@ export default function ProfilePage() {
     };
     fetchImage();
   }, [preview, session?.user?.image]);
+
+  // Mantém a imagem para navbar (cobre casos em que o token não traz a foto)
+  useEffect(() => {
+    setUserImageNav(session?.user?.image || dbImage);
+
+    const fetchImageForNav = async () => {
+      if (session?.user?.image || dbImage) return;
+      try {
+        const res = await fetch("/api/users/image");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.image) setUserImageNav(data.image as string);
+      } catch (error) {
+        console.error("Erro ao buscar imagem do usuário (navbar perfil):", error);
+      }
+    };
+
+    fetchImageForNav();
+  }, [session?.user?.image, dbImage]);
 
 
   const handleSubmit = async (e: FormEvent) => {
@@ -216,9 +236,9 @@ export default function ProfilePage() {
 
                 <div className="flex items-center gap-2">
 
-                    {session.user?.image ? (
+                    {userImageNav ? (
 
-                        <img src={session.user.image} alt="User" className="w-8 h-8 rounded-full border border-gray-600 object-cover" />
+                        <img src={userImageNav} alt="User" className="w-8 h-8 rounded-full border border-gray-600 object-cover" />
 
                     ) : (
 
