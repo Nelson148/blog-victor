@@ -1,3 +1,9 @@
+## Equipe de Desenvolvedores
+
+Victor Guilhereme
+Alvaro Nelson
+Herick Jonathan
+
 # 📘 Blog Fullstack - Next.js com MongoDB
 
 Este repositório contém um projeto de **Blog Fullstack** desenvolvido com **Next.js 16 (App Router)**, **MongoDB Atlas**, **NextAuth.js** e **HeroUI**. O projeto demonstra a construção de uma aplicação moderna, segura e performática com sistema de autenticação, posts, comentários e gerenciamento de usuários.
@@ -356,10 +362,5 @@ Se encontrar problemas ou tiver dúvidas:
 
 ---
 
-## Equipe 
 
-Victor Guilhereme
-Alvaro Nelson
-Herick Jonathan
 
-**Desenvolvido com ❤️ usando Next.js, MongoDB e HeroUI**

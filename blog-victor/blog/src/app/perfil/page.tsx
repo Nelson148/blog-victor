@@ -2,7 +2,7 @@
 
 
 
-import { useState, FormEvent, ChangeEvent } from 'react';
+import { useState, FormEvent, ChangeEvent, useEffect } from 'react';
 
 import Link from "next/link";
 
@@ -29,6 +29,7 @@ export default function ProfilePage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const [preview, setPreview] = useState<string | null>(null);
+  const [dbImage, setDbImage] = useState<string | null>(null);
 
 
 
@@ -46,6 +47,22 @@ export default function ProfilePage() {
 
   };
 
+
+
+  useEffect(() => {
+    // Busca a imagem real do Mongo quando a sessão não traz a imagem (token não guarda base64)
+    const fetchImage = async () => {
+      if (preview || session?.user?.image) return;
+      try {
+        const res = await fetch("/api/users/image");
+        const data = await res.json();
+        if (data?.image) setDbImage(data.image as string);
+      } catch (error) {
+        console.error("Erro ao buscar imagem do usuário:", error);
+      }
+    };
+    fetchImage();
+  }, [preview, session?.user?.image]);
 
 
   const handleSubmit = async (e: FormEvent) => {
@@ -145,7 +162,7 @@ export default function ProfilePage() {
 
   const userRole = (session.user as any)?.role === 'admin' ? 'Administrador' : 'Membro da Comunidade';
 
-  const displayImage = preview || session.user?.image;
+  const displayImage = preview || session.user?.image || dbImage;
 
 
 
@@ -165,10 +182,8 @@ export default function ProfilePage() {
 
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
 
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-700 to-indigo-900 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/50">
-
-                   <span className="text-white font-bold">F1</span>
-
+                <div className="w-8 h-8 bg-gradient-to-br from-green-600 via-green-500 to-green-300 rounded-lg flex items-center justify-center shadow-lg shadow-green-800/40">
+                  <span className="font-bold text-black">F1</span>
                 </div>
 
                 <span className="font-bold text-xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">Blog</span>
@@ -181,13 +196,13 @@ export default function ProfilePage() {
 
           <nav className="flex items-center gap-2 md:gap-4">
 
-            <Button variant="ghost" size="sm" as={Link} href="/" className="text-gray-300 hover:text-white hover:bg-white/10 hidden md:flex">
+            <Button variant="ghost" size="sm" as={Link} href="/" className="text-gray-300 hover:text-white hover:bg-white/10 hidden md:flex rounded-xl border-0">
 
               <Home className="h-4 w-4 mr-2" /> Início
 
             </Button>
 
-            <Button variant="ghost" size="sm" as={Link} href="/post" className="text-gray-300 hover:text-white hover:bg-white/10">
+            <Button variant="ghost" size="sm" as={Link} href="/post" className="text-gray-300 hover:text-white hover:bg-white/10 rounded-xl border-0">
 
               <LayoutGrid className="h-4 w-4 mr-2" /> Posts
 
@@ -221,7 +236,7 @@ export default function ProfilePage() {
 
 
 
-                <Button variant="ghost" size="sm" onClick={() => signOut()} className="text-red-400 hover:bg-red-500/10">
+                <Button variant="ghost" size="sm" onClick={() => signOut()} className="text-red-400 hover:bg-red-500/10 rounded-xl border-0">
 
                   <LogOut className="h-4 w-4" />
 

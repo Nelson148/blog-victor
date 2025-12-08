@@ -2,20 +2,41 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { Button } from "@heroui/react";
 import { Home, LayoutGrid, LogOut } from "lucide-react";
 import { UserAvatar } from "./UserAvatar";
 
 export function Navbar() {
   const { data: session } = useSession();
+  const [userImage, setUserImage] = useState<string | null | undefined>(session?.user?.image);
+
+  // Busca a imagem no backend quando a sessão não traz a foto (token não guarda base64)
+  useEffect(() => {
+    setUserImage(session?.user?.image);
+
+    const fetchImage = async () => {
+      if (session?.user?.image) return;
+      try {
+        const res = await fetch("/api/users/image");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.image) setUserImage(data.image as string);
+      } catch (error) {
+        console.error("Erro ao buscar imagem do usuário (navbar):", error);
+      }
+    };
+
+    fetchImage();
+  }, [session?.user?.image]);
 
   return (
     <nav className="fixed w-full z-40 top-0 border-b border-white/5 bg-black/50 backdrop-blur-xl">
       <div className="container mx-auto px-6 h-16 flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-700 to-indigo-900 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/50">
-              <span className="text-white font-bold">F1</span>
+            <div className="w-8 h-8 bg-gradient-to-br from-green-600 via-green-500 to-green-300 rounded-lg flex items-center justify-center shadow-lg shadow-green-800/40">
+              <span className="font-bold text-black">F1</span>
             </div>
             <span className="font-bold text-xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
               Blog
@@ -48,10 +69,10 @@ export function Navbar() {
 
           {session ? (
             <div className="flex items-center gap-4 border-l border-white/10 pl-4">
-              {session.user?.image ? (
+              {userImage ? (
                 <Link href="/perfil" title="Ir para o Perfil">
                   <img 
-                    src={session.user.image} 
+                    src={userImage} 
                     alt="Avatar" 
                     className="w-8 h-8 rounded-full border border-gray-600 object-cover hover:ring-2 ring-blue-500 transition-shadow" 
                   />

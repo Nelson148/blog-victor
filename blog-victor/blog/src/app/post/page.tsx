@@ -253,18 +253,18 @@ const CreatePostModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="relative w-full max-w-lg bg-gray-900 border border-gray-800 shadow-2xl shadow-blue-900/20 rounded-2xl p-8 animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/80 backdrop-blur-md">
+      <div className="relative w-full max-w-md max-h-[85vh] overflow-y-auto bg-gray-900 border border-gray-800 shadow-2xl shadow-blue-900/20 rounded-2xl p-6 animate-in fade-in zoom-in duration-200">
         <button onClick={onClose} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition">
           <X size={20} />
         </button>
 
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center w-14 h-14 mx-auto mb-4 bg-gray-800 rounded-full border border-gray-700 shadow-inner">
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 bg-gray-800 rounded-full border border-gray-700 shadow-inner">
             <Sparkles className="w-6 h-6 text-blue-400" />
           </div>
-          <h3 className="text-2xl font-bold text-white">Criar Publicação</h3>
-          <p className="text-gray-400 text-sm">Compartilhe algo incrível com o mundo.</p>
+          <h3 className="text-xl font-bold text-white">Criar Publicação</h3>
+          <p className="text-gray-400 text-xs">Compartilhe algo incrível com o mundo.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -280,7 +280,7 @@ const CreatePostModal = ({
 
           <div>
              <label className="block mb-2 text-sm font-medium text-gray-300">Capa do Post</label>
-             <label className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-700 rounded-xl cursor-pointer bg-gray-800/50 hover:bg-gray-800 hover:border-blue-500/50 transition overflow-hidden group">
+             <label className="relative flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-700 rounded-xl cursor-pointer bg-gray-800/50 hover:bg-gray-800 hover:border-blue-500/50 transition overflow-hidden group">
                 {preview ? (
                   <img src={preview} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
